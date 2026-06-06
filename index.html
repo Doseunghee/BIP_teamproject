@@ -466,6 +466,19 @@ function commonOptions(extra={}) {
 function gradientColors(n, base='blue') {
     return Array.from({length:n}, (_,i)=>`rgba(47,126,219,${0.30 + i*(0.58/Math.max(1,n-1))})`);
 }
+function highlightExtremes(values, baseColors=null, options={}) {
+    const nums = values.map(v => Number(v));
+    const filtered = nums.filter(v => Number.isFinite(v));
+    if (!filtered.length) return baseColors || gradientColors(nums.length);
+    const min = Math.min(...filtered);
+    const max = Math.max(...filtered);
+    const neutral = baseColors || gradientColors(nums.length);
+    return nums.map((v, i) => {
+        if (nums.length > 1 && Number.isFinite(v) && v === max) return options.maxColor || colors.blue;
+        if (nums.length > 1 && Number.isFinite(v) && v === min) return options.minColor || colors.red;
+        return Array.isArray(neutral) ? neutral[i % neutral.length] : neutral;
+    });
+}
 
 function makeBar(id, labels, data, label, color, opts={}) {
     new Chart(document.getElementById(id), {
